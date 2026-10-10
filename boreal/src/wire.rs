@@ -142,9 +142,12 @@ pub(crate) mod tests {
     #[test]
     fn test_wire_header() {
         let mut buf = [0; 16];
-        assert!(serialize_header(*b"toto", &mut &mut buf[..0]).is_err());
-        assert!(serialize_header(*b"toto", &mut &mut buf[..13]).is_err());
-        assert!(serialize_header(*b"toto", &mut &mut buf[..16]).is_err());
+        let mut writer = &mut buf[..0];
+        assert!(serialize_header(*b"toto", &mut writer).is_err());
+        let mut writer = &mut buf[..13];
+        assert!(serialize_header(*b"toto", &mut writer).is_err());
+        let mut writer = &mut buf[..16];
+        assert!(serialize_header(*b"toto", &mut writer).is_err());
         let mut buf = Vec::new();
         serialize_header(*b"toto", &mut buf).unwrap();
         assert!(buf.starts_with(b"boreal_wire_toto"));

@@ -1750,7 +1750,8 @@ mod wire {
 
             let mut buf = [0; 46];
             for offset in &truncate_offset_errors {
-                assert!(scanner.serialize(&mut &mut buf[..*offset]).is_err());
+                let mut writer = &mut buf[..*offset];
+                assert!(scanner.serialize(&mut writer).is_err());
             }
 
             let mut buf = Vec::new();
@@ -1797,7 +1798,8 @@ mod wire {
 
             let mut buf = [0; 83];
             for offset in &truncate_offset_errors {
-                assert!(inner.serialize(&mut &mut buf[..*offset]).is_err());
+                let mut writer = &mut buf[..*offset];
+                assert!(inner.serialize(&mut writer).is_err());
             }
 
             let mut buf = Vec::new();
@@ -1838,8 +1840,10 @@ mod wire {
             let modules: Vec<Box<dyn Module>> = vec![Box::new(Time), Box::new(Math)];
 
             let mut buf = [0; 5];
-            assert!(serialize_modules(&modules, &mut &mut buf[..1]).is_err());
-            assert!(serialize_modules(&modules, &mut &mut buf[..5]).is_err());
+            let mut writer = &mut buf[..1];
+            assert!(serialize_modules(&modules, &mut writer).is_err());
+            let mut writer = &mut buf[..5];
+            assert!(serialize_modules(&modules, &mut writer).is_err());
             let mut buf = Vec::new();
             serialize_modules(&modules, &mut buf).unwrap();
 
