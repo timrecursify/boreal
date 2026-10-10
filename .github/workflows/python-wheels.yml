@@ -39,6 +39,7 @@ jobs:
       with:
         name: wheels-${{ matrix.platform.name }}
         path: dist
+        retention-days: 3
 
     strategy:
       fail-fast: false
@@ -94,6 +95,7 @@ jobs:
       with:
         name: wheels-manylinux-${{ matrix.target }}
         path: dist
+        retention-days: 3
 
     strategy:
       fail-fast: false
@@ -138,6 +140,7 @@ jobs:
       with:
         name: wheels-musllinux-${{ matrix.target }}
         path: dist
+        retention-days: 3
 
     strategy:
       fail-fast: false
@@ -167,6 +170,7 @@ jobs:
       with:
         name: wheels-sdist
         path: dist
+        retention-days: 3
 
   release:
     name: Release
