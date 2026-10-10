@@ -13,7 +13,9 @@ jobs:
   # Windows & macos
   build-dist-wheel:
     name: Build wheel for ${{ matrix.platform.name }}
-    runs-on: ${{ matrix.platform.runner }}
+    # disabled DELTA-001354: no self-hosted windows or macOS runner (Tim 2026-10-10 no hosted minutes)
+    if: false
+    runs-on: [self-hosted, fedci]
     steps:
 
     - uses: actions/checkout@v5
@@ -45,29 +47,25 @@ jobs:
       matrix:
         platform:
           - name: windows-x64
-            runner: windows-latest
             target: x86_64
             pyarch: x64
 
           - name: windows-i686
-            runner: windows-latest
             target: x86
             pyarch: x86
 
           - name: macos-x64
-            runner: macos-15-intel
             target: x86_64
             pyarch: x64
 
           - name: macos-aarch64
-            runner: macos-15
             target: aarch64
             pyarch: arm64
 
   # Linux for glibc
   build-manylinux:
     name: Build wheel for manylinux ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     steps:
 
     - uses: actions/checkout@v5
@@ -103,7 +101,7 @@ jobs:
   # Linux for musl
   build-musllinux:
     name: Build wheel for musllinux ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     steps:
 
     - uses: actions/checkout@v5
@@ -147,7 +145,7 @@ jobs:
   # Source wheel
   build-source:
     name: Build source wheel
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     steps:
 
     - uses: actions/checkout@v5
@@ -170,7 +168,7 @@ jobs:
 
   release:
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fedci]
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
     needs: [build-dist-wheel, build-manylinux, build-musllinux, build-source]
     permissions:

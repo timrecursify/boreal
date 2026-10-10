@@ -11,7 +11,7 @@ on:
 jobs:
   test-linux:
     name: Test ${{matrix.build}}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
 
     env:
       RUSTFLAGS: -Dwarnings
@@ -102,7 +102,9 @@ jobs:
 
   test-windows:
     name: Test ${{matrix.build}}
-    runs-on: windows-2025
+    # disabled DELTA-001354: no self-hosted windows runner (Tim 2026-10-10 no hosted minutes)
+    if: false
+    runs-on: [self-hosted, fedci]
 
     env:
       RUSTFLAGS: -Dwarnings
@@ -180,8 +182,10 @@ jobs:
             architecture: x86
 
   test-macos:
-    name: Test ${{matrix.runner}}
-    runs-on: ${{matrix.runner}}
+    # disabled DELTA-001354: no self-hosted macOS runner (Tim 2026-10-10 no hosted minutes)
+    if: false
+    name: Test ${{matrix.build}}
+    runs-on: [self-hosted, fedci]
 
     env:
       RUSTFLAGS: -Dwarnings
@@ -250,13 +254,11 @@ jobs:
         build: [macos-x64, macos-arm64]
         include:
           - build: macos-x64
-            runner: macos-15-intel
           - build: macos-arm64
-            runner: macos-15
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     env:
       RUSTFLAGS: -Dwarnings
     steps:
@@ -270,7 +272,7 @@ jobs:
 
   rustmt:
     name: Rustfmt
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
@@ -280,14 +282,14 @@ jobs:
 
   deny:
     name: Deny
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     steps:
       - uses: actions/checkout@v5
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   coverage:
     name: Coverage
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     env:
       CARGO_TERM_COLOR: always
     steps:
@@ -342,7 +344,7 @@ jobs:
 
   msrv:
     name: Rust 1.85.0
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.85.0
@@ -354,7 +356,7 @@ jobs:
 
   features-matrix:
     name: Test features ${{matrix.features}}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
 
     steps:
       - uses: actions/checkout@v5
