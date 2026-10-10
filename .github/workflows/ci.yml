@@ -315,6 +315,8 @@ jobs:
           # Export cargo llvm-cov env stuff so that we can run "cargo test"
           # and have coverage
           source <(cargo llvm-cov show-env --export-prefix)
+          # Keep the helper binary and integration tests in the same target tree.
+          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           cargo build -p boreal-test-helpers
 
           # Run the normal tests
