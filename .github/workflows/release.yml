@@ -9,7 +9,7 @@ on:
 jobs:
   create-release:
     name: create-release
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, fedci]
     outputs:
       upload_url: ${{ steps.release.outputs.upload_url }}
       boreal_version: ${{ env.BOREAL_VERSION }}
@@ -36,34 +36,22 @@ jobs:
   build-release:
     name: build-release
     needs: ['create-release']
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, fedci]
     env:
       TARGET_DIR: ./target/${{ matrix.target }}
       RUST_BACKTRACE: 1
     strategy:
       matrix:
-        build: [linux, linux32, win-msvc, win32-msvc, macos-x64, macos-arm64]
+        # disabled DELTA-001354: no self-hosted Windows or macOS runner (Tim 2026-10-10 no hosted minutes):
+        # win-msvc, win32-msvc, macos-x64, macos-arm64 entries removed
+        build: [linux, linux32]
         include:
         - build: linux
-          os: ubuntu-24.04
+          os: linux
           target: x86_64-unknown-linux-gnu
         - build: linux32
-          os: ubuntu-24.04
+          os: linux
           target: i686-unknown-linux-gnu
-        - build: win-msvc
-          os: windows-2025
-          target: x86_64-pc-windows-msvc
-          vcpkg_triplet: x64-windows-static
-        - build: win32-msvc
-          os: windows-2025
-          target: i686-pc-windows-msvc
-          vcpkg_triplet: x86-windows-static
-        - build: macos-x64
-          os: macos-15-intel
-          target: x86_64-apple-darwin
-        - build: macos-arm64
-          os: macos-15
-          target: aarch64-apple-darwin
 
     steps:
     - name: Checkout repository
@@ -86,7 +74,7 @@ jobs:
         cargo build --release --features authenticode --target=${{ matrix.target }}
 
     - name: Strip release binary (linux)
-      if: matrix.os == 'ubuntu-22.04'
+      if: false  # DELTA-001354: original condition compared against a hosted image label that never matched; kept disabled
       run: strip "target/${{ matrix.target }}/release/boreal"
 
     - name: Expose assets
@@ -94,7 +82,7 @@ jobs:
       run: |
         asset_name="boreal-${{ needs.create-release.outputs.boreal_version }}-${{ matrix.target }}"
         target_path="target/${{ matrix.target }}/release"
-        if [ "${{ matrix.os }}" = "windows-2025" ]; then
+        if [ "${{ matrix.build }}" = "win-msvc" ]; then
           echo "ASSET_PATH=$target_path/boreal.exe" >> $GITHUB_ENV
           echo "ASSET_NAME=$asset_name.exe" >> $GITHUB_ENV
         else
