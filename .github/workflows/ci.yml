@@ -2,11 +2,17 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   push:
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
     branches:
       - master
   schedule:
     - cron: '45 4 * * 3'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test-linux:
