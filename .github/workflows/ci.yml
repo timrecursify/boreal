@@ -315,9 +315,19 @@ jobs:
           # Export cargo llvm-cov env stuff so that we can run "cargo test"
           # and have coverage
           source <(cargo llvm-cov show-env --export-prefix)
-          # Keep the helper binary and integration tests in the same target tree.
-          export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
-          cargo build -p boreal-test-helpers
+          set -o pipefail
+          export BOREAL_TEST_HELPER_PATH="$(cargo build -p boreal-test-helpers --message-format=json | python3 -c '
+          import json
+          import sys
+          for line in sys.stdin:
+              message = json.loads(line)
+              if message.get("reason") == "compiler-artifact" and message.get("target", {}).get("name") == "boreal-test-helpers":
+                  executable = message.get("executable")
+                  if executable:
+                      print(executable)
+                      break
+          ')"
+          test -n "$BOREAL_TEST_HELPER_PATH"
 
           # Run the normal tests
           cargo test --features magic,authenticode-verify,cuckoo,serialize
