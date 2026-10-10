@@ -2223,18 +2223,19 @@ struct BinHelper {
 
 impl BinHelper {
     fn run(arg: &str) -> Self {
-        // Path to current exe
-        let path = std::env::current_exe().unwrap();
-        // Path to "deps" dir
-        let path = path.parent().unwrap();
-        // Path to parent of deps dir, ie destination of build artifacts
-        let path = path.parent().unwrap();
-        // Now select the bin helper
-        let path = path.join(if cfg!(windows) {
-            "boreal-test-helpers.exe"
-        } else {
-            "boreal-test-helpers"
-        });
+        let path = std::env::var_os("BOREAL_TEST_HELPER_PATH").map_or_else(
+            || {
+                let path = std::env::current_exe().unwrap();
+                let path = path.parent().unwrap();
+                let path = path.parent().unwrap();
+                path.join(if cfg!(windows) {
+                    "boreal-test-helpers.exe"
+                } else {
+                    "boreal-test-helpers"
+                })
+            },
+            std::path::PathBuf::from,
+        );
         if !path.exists() {
             panic!(
                 "File {} not found. \
