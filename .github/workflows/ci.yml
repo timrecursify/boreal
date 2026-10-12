@@ -272,8 +272,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
       - run: cargo clippy --tests --all-features
 
   rustmt:
@@ -304,9 +302,6 @@ jobs:
 
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
-
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
 
       - name: Install uv for the python bindings tests
         uses: astral-sh/setup-uv@v7
@@ -381,8 +376,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
       - name: Build test helpers
         run: |
           cd boreal-test-helpers
