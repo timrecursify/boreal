@@ -1580,10 +1580,8 @@ fn is_import_name_valid(name: &[u8]) -> bool {
     if name.is_empty() {
         false
     } else {
-        name.iter().all(|b| {
-            b.is_ascii_alphanumeric()
-                || b"._?@$()<>".contains(b)
-        })
+        name.iter()
+            .all(|b| b.is_ascii_alphanumeric() || b"._?@$()<>".contains(b))
     }
 }
 
