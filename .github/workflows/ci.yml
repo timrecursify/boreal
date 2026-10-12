@@ -272,8 +272,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
       - run: cargo clippy --tests --all-features
 
   rustmt:
@@ -305,9 +303,6 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
-
       - name: Install uv for the python bindings tests
         uses: astral-sh/setup-uv@v7
         with:
@@ -323,7 +318,21 @@ jobs:
           # Export cargo llvm-cov env stuff so that we can run "cargo test"
           # and have coverage
           source <(cargo llvm-cov show-env --export-prefix)
-          cargo build -p boreal-test-helpers
+          BOREAL_TEST_HELPER_PATH="$(cargo build -p boreal-test-helpers --message-format=json | python3 -c '
+          import json
+          import sys
+          executable = None
+          for line in sys.stdin:
+              message = json.loads(line)
+              if message.get("reason") == "compiler-artifact" and message.get("target", {}).get("name") == "boreal-test-helpers":
+                  candidate = message.get("executable")
+                  if candidate:
+                      executable = candidate
+          if executable:
+              print(executable)
+          ')"
+          export BOREAL_TEST_HELPER_PATH
+          test -n "$BOREAL_TEST_HELPER_PATH"
 
           # Run the normal tests
           cargo test --features magic,authenticode-verify,cuckoo,serialize
@@ -367,8 +376,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install dependencies
-        run: sudo apt install libjansson-dev libmagic-dev
       - name: Build test helpers
         run: |
           cd boreal-test-helpers
